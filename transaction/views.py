@@ -77,9 +77,9 @@ class RetrieveEditDestroyTransaction(generics.RetrieveUpdateDestroyAPIView):
             raise Http404("The transaction does not exist")
 
     @extend_schema(
-            summary="Partially update a transaction",
-            methods=["PATCH"],
-            responses={200: TransactionSerializer}
+        summary="Partially update a transaction",
+        methods=["PATCH"],
+        responses={200: TransactionSerializer},
     )
     def patch(self, request, *args, **kwargs):
         instance = self.get_object()
@@ -98,6 +98,19 @@ class RetrieveEditDestroyTransaction(generics.RetrieveUpdateDestroyAPIView):
             }
             return Response(response, status=status.HTTP_200_OK)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+    def destroy(self, request, *args, **kwargs):
+        instance = self.get_object()
+        transaction_description = instance.description
+        self.perform_destroy(instance)
+
+        return Response(
+            {
+                "Message": f"Transaction {transaction_description} deleted successfully",
+                "status": status.HTTP_204_NO_CONTENT,
+            },
+            status=status.HTTP_204_NO_CONTENT,
+        )
 
     def perform_destroy(self, instance):
         instance.delete()
