@@ -6,6 +6,7 @@ from rest_framework.response import Response
 from rest_framework.decorators import action
 from rest_framework_simplejwt.tokens import RefreshToken
 from drf_yasg.utils import swagger_auto_schema
+from django.contrib.auth.hashers import check_password
 
 from .serializers import (
     RegisterUserSerializer,
@@ -116,13 +117,23 @@ class PasswordChangeView(generics.GenericAPIView):
         return self.request.user
 
     def post(self, request, *args, **kwargs):
+        user = self.request.user
         object = self.get_object()
         serializer = self.get_serializer(object, data=request.data)
         serializer.is_valid(raise_exception=True)
-        password = serializer.validated_data["new_password"]
-        user = self.request.user
-        user.set_password(password)
+        current_password = serializer.validated_data["current_password"]
+        password = user.password
+
+        if not check_password(current_password, password):
+            return Response(
+                {"Error": "Current Password not correct"},
+                status=status.HTTP_400_BAD_REQUEST,
+            )
+        new_password = serializer.validated_data["new_password"]
+        
+        user.set_password(new_password)
         user.save()
+
         response = {
             "message": "Password changed successfully",
             "status": status.HTTP_200_OK,
