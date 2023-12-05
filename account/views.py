@@ -5,8 +5,8 @@ from rest_framework.permissions import AllowAny, IsAuthenticated
 from rest_framework.response import Response
 from rest_framework.decorators import action
 from rest_framework_simplejwt.tokens import RefreshToken
-from drf_yasg.utils import swagger_auto_schema
 from django.contrib.auth.hashers import check_password
+from drf_spectacular.utils import extend_schema, OpenApiParameter, OpenApiExample
 
 from .serializers import (
     RegisterUserSerializer,
@@ -17,7 +17,7 @@ from .serializers import (
 )
 
 
-@swagger_auto_schema(tags=["auth"])
+@extend_schema(tags=["auth"])
 class RegisterUser(generics.CreateAPIView):
     serializer_class = RegisterUserSerializer
     permission_classes = [AllowAny]
@@ -34,7 +34,7 @@ class RegisterUser(generics.CreateAPIView):
         return Response(response, status=status.HTTP_201_CREATED)
 
 
-@swagger_auto_schema(tags=["auth"])
+@extend_schema(tags=["auth"])
 class LoginUser(generics.GenericAPIView):
     permission_classes = [AllowAny]
     serializer_class = LoginUserSerializer
@@ -54,7 +54,7 @@ class LoginUser(generics.GenericAPIView):
         return Response(response, status=status.HTTP_200_OK)
 
 
-@swagger_auto_schema(tags=["auth"])
+@extend_schema(tags=["auth"])
 class LogoutUser(generics.GenericAPIView):
     serializer_class = LogoutUserSerializer
 
@@ -69,7 +69,7 @@ class LogoutUser(generics.GenericAPIView):
         return Response(response, status=status.HTTP_205_RESET_CONTENT)
 
 
-@swagger_auto_schema(tags=["user"])
+@extend_schema(tags=["user"])
 class GetEditUser(generics.RetrieveUpdateAPIView):
     queryset = User.objects.all()
     serializer_class = UserSerializer
@@ -89,7 +89,7 @@ class GetEditUser(generics.RetrieveUpdateAPIView):
         return Response(response, status=status.HTTP_200_OK)
 
     @action(methodS=["PUT"], detail=True, permission_classes=[IsAuthenticated])
-    @swagger_auto_schema(tags=["user"])
+    @extend_schema(tags=["user"])
     def update(self, request, *args, **kwargs):
         partial = kwargs.pop("partial", False)
 
@@ -109,6 +109,7 @@ class GetEditUser(generics.RetrieveUpdateAPIView):
         instance.save()
 
 
+@extend_schema(tags=["user"])
 class PasswordChangeView(generics.GenericAPIView):
     serializer_class = PasswordChangeSerializer
     permission_classes = [IsAuthenticated]

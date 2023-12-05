@@ -3,11 +3,13 @@ from rest_framework import generics, status
 from rest_framework.permissions import IsAuthenticated
 from django.db import models
 from django.shortcuts import get_object_or_404
+from drf_spectacular.utils import extend_schema, OpenApiParameter, OpenApiExample
 
 from .models import Transaction
 from .serializers import TransactionSerializer
 
 
+@extend_schema(tags=["transaction"])
 class CreateTransaction(generics.CreateAPIView):
     """creates a new transaction"""
 
@@ -32,6 +34,7 @@ class CreateTransaction(generics.CreateAPIView):
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 
+@extend_schema(tags=["transaction"])
 class GetTransaction(generics.ListAPIView):
     """gets all transactions"""
     serializer_class = TransactionSerializer
@@ -59,26 +62,20 @@ class GetTransaction(generics.ListAPIView):
         return Response(response, status=status.HTTP_200_OK)
 
 
+
+@extend_schema(tags=["transaction"])
 class DeleteTransaction(generics.DestroyAPIView):
-    """deletes a transaction"""
+    queryset = Transaction.objects.all()
+    serializer_class = TransactionSerializer
     permission_classes = [IsAuthenticated]
 
     def get_object(self):
-        return get_object_or_404(Transaction, id=self.kwargs["pk"])
-
-    def destroy(self, request, *args, **kwargs):
-        transaction = self.get_object()
-        if transaction.user != request.user:
-            response = {
-                "message": "You do not have permission to delete this transaction",
-                "status": status.HTTP_403_FORBIDDEN,
-            }
-            return Response(response, status=status.HTTP_403_FORBIDDEN)
-        self.perform_destroy(transaction)
-        response = {
-            "message": "Transaction deleted successfully",
-            "status": status.HTTP_204_NO_CONTENT,
-        }
+        try:
+            transaction_id = self.kwargs['pk']
+            return Transaction.objects.get(id=transaction_id, user=self.request.user)
+        except Transaction.DoesNotExist:
+            return Response({"message": "Transaction does not exist"}, status=status.HTTP_404_NOT_FOUND)
 
     def perform_destroy(self, instance):
         instance.delete()
+        

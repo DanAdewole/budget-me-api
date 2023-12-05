@@ -39,7 +39,7 @@ INSTALLED_APPS = [
     'django.contrib.messages',
     'django.contrib.staticfiles',
     # Third-party apps
-    'drf_yasg',
+    'drf_spectacular',
     'rest_framework',
     "rest_framework_simplejwt.token_blacklist",
     # Local apps
@@ -133,7 +133,8 @@ DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 REST_FRAMEWORK = {
     'DEFAULT_AUTHENTICATION_CLASSES': (
         'rest_framework_simplejwt.authentication.JWTAuthentication',
-    )
+    ),
+    'DEFAULT_SCHEMA_CLASS': 'drf_spectacular.openapi.AutoSchema',
 }
 
 SWAGGER_SETTINGS = {
@@ -144,6 +145,14 @@ SWAGGER_SETTINGS = {
             'in': 'header'
       }
    }
+}
+
+SPECTACULAR_SETTINGS = {
+    'TITLE': 'Budget API',
+    'DESCRIPTION': 'Bugdet API for BudgetMe App',
+    'VERSION': '1.0.0',
+    'SERVE_INCLUDE_SCHEMA': False,
+    # OTHER SETTINGS
 }
 
 SIMPLE_JWT = {
