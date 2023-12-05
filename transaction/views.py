@@ -74,8 +74,7 @@ class DeleteTransaction(generics.DestroyAPIView):
             transaction_id = self.kwargs['pk']
             return Transaction.objects.get(id=transaction_id, user=self.request.user)
         except Transaction.DoesNotExist:
-            return Response({"message": "Transaction does not exist"}, status=status.HTTP_404_NOT_FOUND)
+            return Response({"message": "The transaction does not exist"}, status=status.HTTP_404_NOT_FOUND)
 
     def perform_destroy(self, instance):
         instance.delete()
-        
