@@ -43,8 +43,16 @@ class LoginUser(generics.GenericAPIView):
         serializer = self.get_serializer(data=request.data)
         serializer.is_valid(raise_exception=True)
         user = serializer.validated_data
+        user_info = User.objects.get(username=user)
         token = RefreshToken.for_user(user)
         data = serializer.data
+        data["user"] = {
+            "id": user_info.id,
+            "username": user_info.username,
+            "first_name": user_info.first_name,
+            "last_name": user_info.last_name,
+            "email": user_info.email,
+        }
         data["token"] = {"refresh": str(token), "access": str(token.access_token)}
         response = {
             "message": "User logged in successfully",
@@ -131,7 +139,7 @@ class PasswordChangeView(generics.GenericAPIView):
                 status=status.HTTP_400_BAD_REQUEST,
             )
         new_password = serializer.validated_data["new_password"]
-        
+
         user.set_password(new_password)
         user.save()
 
