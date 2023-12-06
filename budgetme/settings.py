@@ -37,6 +37,8 @@ ALLOWED_HOSTS = ["localhost", "127.0.0.1", ".onrender.com"]
 
 CORS_ALLOW_HEADERS = "*"
 
+CORS_ALLOW_CREDENTIALS = True
+
 INSTALLED_APPS = [
     "django.contrib.admin",
     "django.contrib.auth",
